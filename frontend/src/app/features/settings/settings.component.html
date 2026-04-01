@@ -72,6 +72,11 @@
                 <app-view-preferences-parent></app-view-preferences-parent>
               </ng-template>
             </p-tabpanel>
+            <p-tabpanel [value]="SettingsTab.LocalSettings">
+              <ng-template #content>
+                <app-local-settings></app-local-settings>
+              </ng-template>
+            </p-tabpanel>
             @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tabpanel [value]="SettingsTab.MetadataSettings">
                 <ng-template #content>

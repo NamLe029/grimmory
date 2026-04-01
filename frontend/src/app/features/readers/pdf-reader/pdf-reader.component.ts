@@ -15,6 +15,8 @@ import { ReaderIconComponent } from '../../readers/ebook-reader/shared/icon.comp
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { CacheStorageService } from '../../../shared/service/cache-storage.service'
+import { LocalSettingsService } from '../../../shared/service/local-settings.service';
 import { ReadingSessionService } from '../../../shared/service/reading-session.service';
 import { WakeLockService } from '../../../shared/service/wake-lock.service';
 import { Location } from '@angular/common';
