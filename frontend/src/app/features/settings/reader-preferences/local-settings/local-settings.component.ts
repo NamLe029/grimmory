@@ -5,8 +5,8 @@ import {Checkbox} from "primeng/checkbox";
 import {Button} from "primeng/button";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {TranslocoDirective} from "@jsverse/transloco";
-import {LocalSettingsService, LocalSettings} from "../../../shared/service/local-settings.service";
-import {CacheStorageService} from "../../../shared/service/cache-storage.service";
+import {LocalSettingsService, LocalSettings} from "../../../../shared/service/local-settings.service";
+import {CacheStorageService} from "../../../../shared/service/cache-storage.service";
 
 @Component({
   selector: "app-local-settings",
