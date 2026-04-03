@@ -6,7 +6,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
-import org.booklore.service.FileStreamingService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,6 @@ public class AudiobookReaderService {
     private final BookRepository bookRepository;
     private final AudioMetadataService audioMetadataService;
     private final AudioFileUtilityService audioFileUtility;
-    private final FileStreamingService fileStreamingService;
 
     /**
      * Get audiobook information including metadata, chapters, and tracks.
@@ -65,14 +64,6 @@ public class AudiobookReaderService {
         } else {
             return bookFile.getFullFilePath();
         }
-    }
-
-    /**
-     * Stream an audio file with HTTP Range support for seeking.
-     */
-    public void streamWithRangeSupport(Path filePath, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String contentType = audioFileUtility.getContentType(filePath);
-        fileStreamingService.streamWithRangeSupport(filePath, contentType, request, response);
     }
 
     /**

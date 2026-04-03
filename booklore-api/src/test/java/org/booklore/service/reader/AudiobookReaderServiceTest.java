@@ -6,9 +6,6 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
-import org.booklore.service.FileStreamingService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,9 +38,6 @@ class AudiobookReaderServiceTest {
 
     @Mock
     AudioFileUtilityService audioFileUtility;
-
-    @Mock
-    FileStreamingService fileStreamingService;
 
     @InjectMocks
     AudiobookReaderService audiobookReaderService;
@@ -259,36 +253,6 @@ class AudiobookReaderServiceTest {
 
         assertThrows(ApiError.FILE_NOT_FOUND.createException().getClass(),
                 () -> audiobookReaderService.getAudioFilePath(1L, null, -1));
-    }
-
-    // ==================== streamWithRangeSupport tests ====================
-
-    @Test
-    void streamWithRangeSupport_delegatesToFileStreamingService() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        when(audioFileUtility.getContentType(audioPath)).thenReturn("audio/mp4");
-
-        audiobookReaderService.streamWithRangeSupport(audioPath, request, response);
-
-        verify(audioFileUtility).getContentType(audioPath);
-        verify(fileStreamingService).streamWithRangeSupport(audioPath, "audio/mp4", request, response);
-    }
-
-    @Test
-    void streamWithRangeSupport_usesCorrectContentType() throws IOException {
-        Path mp3Path = tempDir.resolve("audio.mp3");
-        Files.createFile(mp3Path);
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        when(audioFileUtility.getContentType(mp3Path)).thenReturn("audio/mpeg");
-
-        audiobookReaderService.streamWithRangeSupport(mp3Path, request, response);
-
-        verify(fileStreamingService).streamWithRangeSupport(mp3Path, "audio/mpeg", request, response);
     }
 
     // ==================== getEmbeddedCoverArt tests ====================
