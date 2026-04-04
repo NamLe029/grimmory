@@ -11,8 +11,6 @@ import org.booklore.repository.CustomFontRepository;
 import org.booklore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,7 +154,7 @@ public class CustomFontService {
         }
     }
 
-    public Resource getFontFile(Long fontId, Long userId) {
+    public File getFontFile(Long fontId, Long userId) {
         CustomFontEntity font = customFontRepository.findByIdAndUserId(fontId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Font not found or access denied"));
 
@@ -176,7 +174,7 @@ public class CustomFontService {
             throw new IllegalArgumentException("Font file not found on disk");
         }
 
-        return new FileSystemResource(fontFile);
+        return fontFile;
     }
 
     public FontFormat getFontFormat(Long fontId, Long userId) {
