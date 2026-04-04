@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
+import org.springframework.http.server.PathContainer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -33,8 +34,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 @Slf4j
 @AllArgsConstructor
@@ -214,7 +218,7 @@ public class SecurityConfig {
     @Order(8)
     public SecurityFilterChain wsSecurityChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/ws")
+                .securityMatcher("/ws/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -233,29 +237,34 @@ public class SecurityConfig {
     @Bean
     @Order(9)
     public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
-        final List<String> whitelistedPaths = List.of(
-                "/api/v1/opds",
-                "/api/v2/opds",
-                "/api/v1/auth/refresh",
-                "/api/v1/setup",
-                "/api/kobo"
-        );
-        final List<String> matchPaths = List.of(
-                "/api",
-                "/komga"
-        );
-        List<String> publicEndpoints = new ArrayList<>(Arrays.asList(COMMON_PUBLIC_ENDPOINTS));
+        var parser = new PathPatternParser();
+        final List<PathPattern> matchPatterns = Stream.of(
+                "/api/**",
+                "/komga/**"
+        ).map(parser::parse).toList();
+        final List<PathPattern> whitelistedPatterns = Stream.concat(
+                Arrays.stream(COMMON_PUBLIC_ENDPOINTS),
+                Stream.of(
+                        "/api/v1/opds",
+                        "/api/v1/opds/**",
+                        "/api/v2/opds",
+                        "/api/v2/opds/**",
+                        "/api/kobo",
+                        "/api/kobo/**",
+                        "/api/v1/auth/refresh",
+                        "/api/v1/setup"
+                )
+        ).map(parser::parse).toList();
+
         http
                 .securityMatcher(request -> {
-                    var path = request.getRequestURI();
-                    if (matchPaths.parallelStream().noneMatch(path::startsWith)) {
+                    var pathContainer = PathContainer.parsePath(request.getRequestURI());
+                    if (matchPatterns.parallelStream().noneMatch(p -> p.matches(pathContainer))) {
                         return false;
                     }
-
-                    if (whitelistedPaths.parallelStream().anyMatch(path::startsWith)) {
+                    if (whitelistedPatterns.parallelStream().anyMatch(p -> p.matches(pathContainer))) {
                         return false;
                     }
-
                     return true;
                 })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -268,8 +277,8 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(req -> true).authenticated()
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
-                        .requestMatchers(publicEndpoints.toArray(new String[0])).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

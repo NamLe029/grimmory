@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.JwtUtils;
 import org.booklore.config.security.userdetails.UserAuthenticationDetails;
 import org.booklore.mapper.custom.BookLoreUserTransformer;
@@ -20,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 @FilterRegistration(enabled = false)
@@ -47,8 +49,12 @@ public class QueryParameterJwtFilter extends OncePerRequestFilter {
         try {
             if (jwtUtils.validateToken(token)) {
                 authenticateUser(token, request);
+            } else {
+                log.debug("Invalid token. Rejecting request.");
             }
-        } catch (Exception _) {}
+        } catch (Exception ex) {
+            log.error("Authentication error: {}", ex.getMessage(), ex);
+        }
 
         chain.doFilter(request, response);
     }
