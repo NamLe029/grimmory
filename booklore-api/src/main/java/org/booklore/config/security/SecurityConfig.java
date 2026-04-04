@@ -277,7 +277,6 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(req -> true).authenticated()
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .anyRequest().authenticated()
                 )
