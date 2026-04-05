@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (ready && !this.subscriptionsInitialized) {
       this.setupWebSocketSubscriptions();
-      this.libraryHealthService.initialize();
+      this.libraryHealthService.initWebsocket();
       this.subscriptionsInitialized = true;
     }
   });

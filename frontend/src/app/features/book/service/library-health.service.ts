@@ -32,7 +32,7 @@ export class LibraryHealthService {
     void this.queryClient.fetchQuery(this.getHealthQueryOptions());
   }
 
-  initialize(): void {
+  initWebsocket(): void {
     this.rxStompService.watch('/topic/library-health').subscribe(msg => {
       const payload = JSON.parse(msg.body);
       this.queryClient.setQueryData(LIBRARY_HEALTH_QUERY_KEY, payload.libraryHealth);
