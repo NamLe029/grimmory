@@ -58,8 +58,9 @@ export class AppComponent implements OnInit, OnDestroy {
   });
 
   private readonly authenticatedEffect = effect(() => {
+    const authInitialized = this.authInit.initialized();
     const isAuthenticated = this.authService.isAuthenticated();
-    if (isAuthenticated) {
+    if (authInitialized && isAuthenticated) {
       this.libraryHealthService.fetchHealth();
     }
   })
