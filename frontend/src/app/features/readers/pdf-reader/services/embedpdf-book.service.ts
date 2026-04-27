@@ -43,8 +43,8 @@ export class EmbedPdfBookService {
 
   private currentDocumentId: string | null = null;
 
+  private zoomChangeUnsub?: () => void;
   private pageChangeUnsub?: () => void;
-
   private annotationEventUnsub?: () => void;
   private layoutReadyUnsub?: () => void;
   private documentOpenedUnsub?: () => void;
@@ -165,6 +165,16 @@ export class EmbedPdfBookService {
     const i18nPlugin = this.registry.getPlugin('i18n');
     this.i18n = i18nPlugin?.provides?.() as I18nCapability ?? null;
     this.applyLocale(requestedLocale);
+
+    if (this.zoom) {
+      // Workaround: for some reason, the "fit-width" zoom level causes scroll plugin to calculate the
+      // scroll position incorrectly. Explicitly set the zoom level to the calculated numeric value solves this
+      this.zoomChangeUnsub = this.zoom.onZoomChange((ev: any) => {
+        if (ev.level === "fit-width" && ev.newZoom !== ev.oldZoom) {
+          this.zoom?.requestZoom(ev.newZoom);
+        }
+      })
+    }
 
     // wire events
     if (this.scroll) {
@@ -371,6 +381,7 @@ export class EmbedPdfBookService {
   }
 
   destroy(): void {
+    this.zoomChangeUnsub?.();
     this.pageChangeUnsub?.();
     this.annotationEventUnsub?.();
     this.layoutReadyUnsub?.();
